@@ -10,8 +10,9 @@ public abstract class Cartao {
     private String tipoCartao; // "CREDITO" ou "DEBITO"
     private String senha;
     private boolean ativo;
+    private BigDecimal limite;
 
-    public abstract void pagar(BigDecimal valor);
+	public abstract void pagar(BigDecimal valor);
     public abstract void alterarSenha(String novaSenha);
     public abstract void ajustarLimite(BigDecimal novoLimite);
 
@@ -55,4 +56,11 @@ public abstract class Cartao {
 		this.ativo = ativo;
 	}
     
+    public BigDecimal getLimite() {
+		return limite;
+	}
+	public void setLimite(BigDecimal limite) {
+		this.limite = limite;
+	}	
+	
 }

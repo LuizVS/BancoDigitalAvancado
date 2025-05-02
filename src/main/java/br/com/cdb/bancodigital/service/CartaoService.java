@@ -6,20 +6,20 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.cdb.bancodigital.dao.CartaoDAO;
 import br.com.cdb.bancodigital.entity.Cartao;
 import br.com.cdb.bancodigital.entity.CartaoCredito;
 import br.com.cdb.bancodigital.entity.CartaoDebito;
 import br.com.cdb.bancodigital.entity.Conta;
 import br.com.cdb.bancodigital.entity.ContaCorrente;
 import br.com.cdb.bancodigital.entity.ContaPoupanca;
-import br.com.cdb.bancodigital.repository.CartaoRepository;
 
 @Service
 public class CartaoService {
-
-    @Autowired
-    private CartaoRepository cartaoRepository;
     
+	@Autowired
+	private CartaoDAO cartaoDAO;
+	
     @Autowired
     private ContaService contaService;    
 
@@ -30,7 +30,7 @@ public class CartaoService {
         cartao.setSenha(senha);
         cartao.ajustarLimite(limite);
         cartao.ativar();
-        return cartaoRepository.save(cartao);
+        return cartaoDAO.salvarCartao(cartao);
     }
 
     public Cartao criarCartaoDebito(Long idConta, BigDecimal limiteDiario, String senha) {
@@ -40,23 +40,23 @@ public class CartaoService {
         cartao.setSenha(senha);
         cartao.ajustarLimite(limiteDiario);
         cartao.ativar();
-        return cartaoRepository.save(cartao);
-    }       
+        return cartaoDAO.salvarCartao(cartao);
+    }     
 
     public void alterarSenha(Long id, String novaSenha) {
-        Optional<Cartao> cartao = cartaoRepository.findById(id);
+        Optional<Cartao> cartao = cartaoDAO.buscarCartaoPorId(id);
         cartao.ifPresent(c -> {
             c.alterarSenha(novaSenha);
-            cartaoRepository.save(c);
+            cartaoDAO.atualizarSenha(id, novaSenha);
         });
     }
-
+    
     public void ativarDesativarCartao(Long id, boolean ativar) {
-        Optional<Cartao> cartao = cartaoRepository.findById(id);
+        Optional<Cartao> cartao = cartaoDAO.buscarCartaoPorId(id);
         cartao.ifPresent(c -> {
             if (ativar) c.ativar();
             else c.desativar();
-            cartaoRepository.save(c);
+            cartaoDAO.ativarDesativarCartao(id, ativar);
         });
     }
     
@@ -81,11 +81,11 @@ public class CartaoService {
         BigDecimal oitentaPorCentoDoLimite = limite.multiply(BigDecimal.valueOf(0.8));
 
         if (totalGastoNoMes.compareTo(oitentaPorCentoDoLimite) > 0) {
-            return totalGastoNoMes.multiply(BigDecimal.valueOf(0.05)); // 5% de taxa
+            return totalGastoNoMes.multiply(BigDecimal.valueOf(0.05));
         }
 
         return BigDecimal.ZERO;
-    }    
+    }
     
     public void aplicarTaxaManutencao(Long idConta, String tipoCliente) {
         Conta conta = contaService.buscarContaPorId(idConta); 
@@ -105,5 +105,9 @@ public class CartaoService {
             contaPoupanca.aplicarRendimento();
             contaService.criarConta(contaPoupanca); 
         }
+    }   
+    
+    public Optional<Cartao> buscarCartaoPorId(Long id) {  	
+        return cartaoDAO.buscarCartaoPorId(id);                
     }    
 }

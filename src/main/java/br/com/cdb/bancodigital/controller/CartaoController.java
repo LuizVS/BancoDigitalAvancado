@@ -3,6 +3,9 @@ package br.com.cdb.bancodigital.controller;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,4 +42,12 @@ public class CartaoController {
     public void ativarOuDesativar(@PathVariable Long id, @RequestParam boolean ativar) {
         cartaoService.ativarDesativarCartao(id, ativar);
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Cartao> buscarCartaoPorId(@PathVariable Long id) {
+        return cartaoService.buscarCartaoPorId(id)
+        		.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }    
+    
 }
