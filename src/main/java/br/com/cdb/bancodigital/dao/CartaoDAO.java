@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class CartaoDAO {
     private JdbcTemplate jdbcTemplate;	
 	
     public Cartao salvarCartao(Cartao cartao) {
-        String sql = "INSERT INTO cartao (idconta, numerocartao, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cartao (idconta, numerocartao, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?) RETURNING id";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -41,7 +42,13 @@ public class CartaoDAO {
             return ps;
         }, keyHolder);
 
-        cartao.setId(keyHolder.getKey().longValue());
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.containsKey("id")) {
+            cartao.setId(((Number) keys.get("id")).longValue());
+        } else {
+            throw new IllegalStateException("Erro ao obter o ID do cartão inserido.");
+        }
+        
         return cartao;
     }
     

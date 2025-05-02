@@ -2,26 +2,13 @@ package br.com.cdb.bancodigital.entity;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
 public class SeguroCartao {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 	private Long idCliente;
-
     private String tipoSeguro; // "VIAGEM" ou "FRAUDE"
-
     private BigDecimal valorMensal;
-
     private BigDecimal cobertura;
-
     private boolean ativo;
 
     // Getters e Setters

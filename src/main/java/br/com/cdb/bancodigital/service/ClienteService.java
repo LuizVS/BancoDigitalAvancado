@@ -118,7 +118,7 @@ public class ClienteService {
         return (digito1 == (cpf.charAt(9) - '0')) && (digito2 == (cpf.charAt(10) - '0'));
     }	
 	
-	private void validarCampos(String nome, Long cpf, LocalDate nascimento, String cep) {
+	private void validarCampos(String nome, String cpf, LocalDate nascimento, String cep) {
 	    //if (nome == null || nome.trim().isEmpty()) {
 		if (!validarNome(nome)) {
 	        throw new IllegalArgumentException("Nome é obrigatório.");
@@ -155,7 +155,7 @@ public class ClienteService {
         }
     }	
 	
-	public void salvarCliente(String nome, Long cpf, LocalDate nascimento, String rua, String numero, String complemento, String cidade, String estado, String cep, String tipo)
+	public void salvarCliente(String nome, String cpf, LocalDate nascimento, String rua, String numero, String complemento, String cidade, String estado, String cep, String tipo)
 	{
 		validarCampos(nome, cpf, nascimento, cep);
 		

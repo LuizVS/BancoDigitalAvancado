@@ -7,7 +7,7 @@ public class Cliente {
 	private Long id;
 	
 	private String nome;	
-	private Long cpf;
+	private String cpf;
 	private LocalDate nascimento;
 	private String rua;
 	private String numero;
@@ -78,10 +78,10 @@ public class Cliente {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	public Long getCpf() {
+	public String getCpf() {
 		return cpf;
 	}
-	public void setCpf(Long cpf) {
+	public void setCpf(String cpf) {
 		this.cpf = cpf;
 	}
 	

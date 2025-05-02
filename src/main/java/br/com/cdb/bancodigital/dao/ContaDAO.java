@@ -1,7 +1,10 @@
 package br.com.cdb.bancodigital.dao;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import br.com.cdb.bancodigital.entity.ContaCorrente;
 import br.com.cdb.bancodigital.entity.ContaPoupanca;
@@ -22,8 +27,26 @@ public class ContaDAO {
     // === Conta Corrente ===
     public ContaCorrente salvarContaCorrente(ContaCorrente conta) {
         String sql = "INSERT INTO conta_corrente (id_cliente, saldo) VALUES (?, ?) RETURNING id";
-        Long id = jdbcTemplate.queryForObject(sql, Long.class, conta.getIdCliente(), conta.getSaldo());
-        conta.setId(id);
+        
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        
+        //Long id = jdbcTemplate.queryForObject(sql, Long.class, conta.getIdCliente(), conta.getSaldo());
+        //conta.setId(id);
+        
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, conta.getIdCliente());
+            ps.setBigDecimal(2, conta.getSaldo());
+            return ps;
+        }, keyHolder);
+
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.containsKey("id")) {
+            conta.setId(((Number) keys.get("id")).longValue());
+        } else {
+            throw new IllegalStateException("Erro ao obter o ID da conta corrente inserida.");
+        }
+               
         return conta;
     }
     
@@ -57,8 +80,26 @@ public class ContaDAO {
     // === Conta Poupança ===
     public ContaPoupanca salvarContaPoupanca(ContaPoupanca conta) {
         String sql = "INSERT INTO conta_poupanca (id_cliente, saldo) VALUES (?, ?) RETURNING id";
-        Long id = jdbcTemplate.queryForObject(sql, Long.class, conta.getIdCliente(), conta.getSaldo());
-        conta.setId(id);
+        
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        
+        //Long id = jdbcTemplate.queryForObject(sql, Long.class, conta.getIdCliente(), conta.getSaldo());
+        //conta.setId(id);
+        
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, conta.getIdCliente());
+            ps.setBigDecimal(2, conta.getSaldo());
+            return ps;
+        }, keyHolder);
+
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.containsKey("id")) {
+            conta.setId(((Number) keys.get("id")).longValue());
+        } else {
+            throw new IllegalStateException("Erro ao obter o ID da conta poupança inserida.");
+        }
+        
         return conta;
     }
 

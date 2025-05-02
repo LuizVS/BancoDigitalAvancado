@@ -1,6 +1,7 @@
 package br.com.cdb.bancodigital.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -27,14 +28,14 @@ public class ClienteDAO {
     private JdbcTemplate jdbcTemplate;
     
     public Cliente salvarCliente(Cliente cliente) {
-        String sql = "INSERT INTO cliente (nome, cpf, nascimento, rua, numero, complemento, cidade, estado, cep, tipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cliente (nome, cpf, nascimento, rua, numero, complemento, cidade, estado, cep, tipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, cliente.getNome());
-            ps.setLong(2, cliente.getCpf());
+            ps.setString(2, cliente.getCpf());
             ps.setDate(3, java.sql.Date.valueOf(cliente.getNascimento()));
             ps.setString(4, cliente.getRua());
             ps.setString(5, cliente.getNumero());
@@ -47,7 +48,13 @@ public class ClienteDAO {
         }, keyHolder); 
         
 
-        cliente.setId(keyHolder.getKey().longValue());
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.containsKey("id")) {
+            cliente.setId(((Number) keys.get("id")).longValue());
+        } else {
+            throw new IllegalStateException("Erro ao obter o ID do cliente inserido.");
+        }
+        
         return cliente;        
         
         //jdbcTemplate.update(sql, cliente.getNome(), cliente.getCpf(), java.sql.Date.valueOf(cliente.getNascimento()), cliente.getRua(), 
@@ -61,7 +68,7 @@ public class ClienteDAO {
             Cliente c = new Cliente();
             c.setId(rs.getLong("id"));
             c.setNome(rs.getString("nome"));
-            c.setCpf(rs.getLong("cpf"));
+            c.setCpf(rs.getString("cpf"));
             c.setNascimento(rs.getDate("nascimento").toLocalDate());
             c.setRua(rs.getString("rua"));
             c.setNumero(rs.getString("numero"));
@@ -91,7 +98,7 @@ public class ClienteDAO {
                 Cliente c = new Cliente();
                 c.setId(rs.getLong("id"));
                 c.setNome(rs.getString("nome"));
-                c.setCpf(rs.getLong("cpf"));
+                c.setCpf(rs.getString("cpf"));
                 c.setNascimento(rs.getDate("nascimento").toLocalDate());
                 c.setRua(rs.getString("rua"));
                 c.setNumero(rs.getString("numero"));
@@ -105,14 +112,14 @@ public class ClienteDAO {
         };
     }
 
-	public Optional<Cliente> buscarClientePorCPF(Long cpf) {
+	public Optional<Cliente> buscarClientePorCPF(String cpf) {
         String sql = "SELECT * FROM cliente where cpf = ?";
         try {
             Cliente cliente = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
                 Cliente c = new Cliente();
                 c.setId(rs.getLong("id"));
                 c.setNome(rs.getString("nome"));
-                c.setCpf(rs.getLong("cpf"));
+                c.setCpf(rs.getString("cpf"));
                 c.setNascimento(rs.getDate("nascimento").toLocalDate());
                 c.setRua(rs.getString("rua"));
                 c.setNumero(rs.getString("numero"));
