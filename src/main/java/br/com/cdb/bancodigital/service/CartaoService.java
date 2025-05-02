@@ -10,7 +10,6 @@ import br.com.cdb.bancodigital.dao.CartaoDAO;
 import br.com.cdb.bancodigital.entity.Cartao;
 import br.com.cdb.bancodigital.entity.CartaoCredito;
 import br.com.cdb.bancodigital.entity.CartaoDebito;
-import br.com.cdb.bancodigital.entity.Conta;
 import br.com.cdb.bancodigital.entity.ContaCorrente;
 import br.com.cdb.bancodigital.entity.ContaPoupanca;
 
@@ -87,27 +86,29 @@ public class CartaoService {
         return BigDecimal.ZERO;
     }
     
-    public void aplicarTaxaManutencao(Long idConta, String tipoCliente) {
-        Conta conta = contaService.buscarContaPorId(idConta); 
-        if (conta instanceof ContaCorrente) {
-            ContaCorrente contaCorrente = (ContaCorrente) conta;
-            contaCorrente.calcularTaxaManutencao(tipoCliente);
-            contaCorrente.aplicarTaxaManutencao();
-            contaService.criarConta(contaCorrente); 
-        }
+    public void aplicarTaxaManutencao(Long idConta, String tipoCliente) {    	
+        ContaCorrente contaCorrente = contaService.buscarContaCorrentePorId(idConta)
+            .orElseThrow(() -> new RuntimeException("Conta corrente não encontrada"));
+        
+        contaCorrente.calcularTaxaManutencao(tipoCliente);
+        contaCorrente.aplicarTaxaManutencao();
+        contaService.criarContaCorrente(contaCorrente.getId(), contaCorrente.getSaldo()); 
     }
 
     public void aplicarRendimento(Long idConta) {
-        Conta conta = contaService.buscarContaPorId(idConta);
-        if (conta instanceof ContaPoupanca) {
-            ContaPoupanca contaPoupanca = (ContaPoupanca) conta;
-            contaPoupanca.calcularTaxaRendimento(conta.getDescricaoTipoConta());
-            contaPoupanca.aplicarRendimento();
-            contaService.criarConta(contaPoupanca); 
-        }
-    }   
+        ContaPoupanca contaPoupanca = contaService.buscarContaPoupancaPorId(idConta)
+            .orElseThrow(() -> new RuntimeException("Conta poupança não encontrada"));
+
+        contaPoupanca.calcularTaxaRendimento(contaPoupanca.getDescricaoTipoConta());
+        contaPoupanca.aplicarRendimento();
+        contaService.criarContaPoupanca(contaPoupanca.getId(), contaPoupanca.getSaldo()); 
+    }  
     
     public Optional<Cartao> buscarCartaoPorId(Long id) {  	
         return cartaoDAO.buscarCartaoPorId(id);                
     }    
+    
+    public Optional<Cartao> buscarCartaoPorNumero(String numero) {  	
+        return cartaoDAO.buscarCartaoPorNumero(numero);                
+    }        
 }

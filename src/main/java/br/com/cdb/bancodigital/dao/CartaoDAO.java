@@ -26,17 +26,18 @@ public class CartaoDAO {
     private JdbcTemplate jdbcTemplate;	
 	
     public Cartao salvarCartao(Cartao cartao) {
-        String sql = "INSERT INTO cartao (idconta, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cartao (idconta, numerocartao, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, cartao.getIdConta());
-            ps.setString(2, cartao.getTipoCartao());
-            ps.setString(3, cartao.getSenha());
-            ps.setBoolean(4, cartao.isAtivo());
-            ps.setBigDecimal(5, cartao.getLimite());
+            ps.setString(2, cartao.getNumeroCartao());
+            ps.setString(3, cartao.getTipoCartao());
+            ps.setString(4, cartao.getSenha());
+            ps.setBoolean(5, cartao.isAtivo());
+            ps.setBigDecimal(6, cartao.getLimite());
             return ps;
         }, keyHolder);
 
@@ -59,6 +60,7 @@ public class CartaoDAO {
 
                 cartao.setId(rs.getLong("id"));
                 cartao.setIdConta(rs.getLong("idconta"));
+                cartao.setNumeroCartao(rs.getString("numerocartao"));                
                 cartao.setTipoCartao(tipo);
                 cartao.setSenha(rs.getString("senha"));
                 cartao.setAtivo(rs.getBoolean("ativo"));
@@ -78,6 +80,16 @@ public class CartaoDAO {
             return Optional.empty();
         }
     }
+    
+    public Optional<Cartao> buscarCartaoPorNumero(String numero) {
+        String sql = "SELECT * FROM cartao WHERE numerocartao = ?";
+        try {
+            Cartao cartao = jdbcTemplate.queryForObject(sql, cartaoRowMapper(), numero);
+            return Optional.of(cartao);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }    
     
     public void atualizarLimite(Long id, BigDecimal novoLimite) {
         String sql = "UPDATE cartao SET limite = ? WHERE id = ?";

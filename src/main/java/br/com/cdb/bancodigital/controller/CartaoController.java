@@ -50,4 +50,11 @@ public class CartaoController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }    
     
+    @GetMapping("/{numero}")
+    public ResponseEntity<Cartao> buscarCartaoPorNumero(@PathVariable String numero) {
+        return cartaoService.buscarCartaoPorNumero(numero)
+        		.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }      
+    
 }

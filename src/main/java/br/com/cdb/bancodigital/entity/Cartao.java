@@ -7,7 +7,8 @@ public abstract class Cartao {
     private Long id;
 
     private Long idConta;
-    private String tipoCartao; // "CREDITO" ou "DEBITO"
+    private String numeroCartao;
+	private String tipoCartao; // "CREDITO" ou "DEBITO"
     private String senha;
     private boolean ativo;
     private BigDecimal limite;
@@ -61,6 +62,13 @@ public abstract class Cartao {
 	}
 	public void setLimite(BigDecimal limite) {
 		this.limite = limite;
+	}	
+	
+    public String getNumeroCartao() {
+		return numeroCartao;
+	}
+	public void setNumeroCartao(String numeroCartao) {
+		this.numeroCartao = numeroCartao;
 	}	
 	
 }

@@ -25,7 +25,7 @@ public class ClienteController {
 	@Autowired
 	private ClienteService clienteService;
 	
-	@PostMapping("/add")
+	@PostMapping("/novo")
     public ResponseEntity<String> criar(@RequestBody Cliente cliente) {
         try {
             clienteService.salvarCliente(
@@ -39,7 +39,7 @@ public class ClienteController {
         }
     }
 	
-	@GetMapping("/listAll")
+	@GetMapping("/listartodos")
     public ResponseEntity<List<Cliente>> listar() {
         List<Cliente> clientes = clienteService.listarClientes();
         return ResponseEntity.ok(clientes);

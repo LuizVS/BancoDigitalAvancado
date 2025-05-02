@@ -2,26 +2,12 @@ package br.com.cdb.bancodigital.entity;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "conta_corrente")
 public class ContaCorrente extends Conta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private BigDecimal saldo = BigDecimal.ZERO;
-
     private Long idCliente;
-
-    private String tipoConta = "Corrente";
-    
+    private String tipoConta = "Corrente";    
     private BigDecimal taxaManutencao;
 
     @Override
@@ -70,7 +56,13 @@ public class ContaCorrente extends Conta {
         }
     }    
     
-    public Long getId() {
+    
+    
+    public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getId() {
         return id;
     }
 

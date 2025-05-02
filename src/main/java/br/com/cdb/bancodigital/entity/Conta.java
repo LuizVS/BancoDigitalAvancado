@@ -2,9 +2,6 @@ package br.com.cdb.bancodigital.entity;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.MappedSuperclass;
-
-@MappedSuperclass
 public abstract class Conta {
 
     public abstract String getDescricaoTipoConta();

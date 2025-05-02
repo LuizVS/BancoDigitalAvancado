@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.cdb.bancodigital.entity.Conta;
+import br.com.cdb.bancodigital.entity.ContaCorrente;
+import br.com.cdb.bancodigital.entity.ContaPoupanca;
 import br.com.cdb.bancodigital.service.ContaService;
 
 @RestController
@@ -22,16 +23,30 @@ public class ContaController {
     @Autowired
     private ContaService contaService;
 
-    @PostMapping
-    public Conta criarConta(@RequestBody Conta conta) {
-        return contaService.criarConta(conta);
+    // ----------- Conta Corrente -------------
+    @PostMapping("/corrente")
+    public ContaCorrente criarContaCorrente(@RequestBody ContaCorrente contaCorrente) {
+        return contaService.criarContaCorrente(contaCorrente.getId(), contaCorrente.getSaldo());
     }
 
-    @GetMapping("/{id}")
-    public Optional<Conta> buscarConta(@PathVariable Long id) {
-        return Optional.ofNullable(contaService.buscarContaPorId(id));
+    @GetMapping("/corrente/{id}")
+    public Optional<ContaCorrente> buscarContaCorrente(@PathVariable Long id) {
+        return contaService.buscarContaCorrentePorId(id);
+    }
+    // ----------------------------------------
+    
+    // ----------- Conta Poupança -------------
+    @PostMapping("/poupanca")
+    public ContaPoupanca criarContaPoupanca(@RequestBody ContaPoupanca contaPoupanca) {
+        return contaService.criarContaPoupanca(contaPoupanca.getId(), contaPoupanca.getSaldo());
     }
 
+    @GetMapping("/poupanca/{id}")
+    public Optional<ContaPoupanca> buscarContaPoupanca(@PathVariable Long id) {
+        return contaService.buscarContaPoupancaPorId(id);
+    }    
+    // ----------------------------------------    
+    
     @PostMapping("/{id}/depositar")
     public void depositar(@PathVariable Long id, @RequestParam BigDecimal valor) {
         contaService.depositar(id, valor);

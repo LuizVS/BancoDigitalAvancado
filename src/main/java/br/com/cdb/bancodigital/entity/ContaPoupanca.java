@@ -3,26 +3,12 @@ package br.com.cdb.bancodigital.entity;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "conta_poupanca")
 public class ContaPoupanca extends Conta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private BigDecimal saldo = BigDecimal.ZERO;
-
     private Long idCliente;
-
-    private String tipoConta = "Poupança";
-    
+    private String tipoConta = "Poupanca";    
     private BigDecimal taxaRendimentoAnual;
 
     @Override
@@ -69,7 +55,13 @@ public class ContaPoupanca extends Conta {
         }
     }
 
-    public BigDecimal getTaxaRendimentoAnual() {
+    
+    
+    public void setId(Long id) {
+		this.id = id;
+	}
+
+	public BigDecimal getTaxaRendimentoAnual() {
         return taxaRendimentoAnual;
     }
     
