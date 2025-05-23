@@ -1,8 +1,6 @@
 package br.com.cdb.bancodigital.dao;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Optional;
@@ -10,13 +8,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import br.com.cdb.bancodigital.entity.SeguroCartao;
+import br.com.cdb.bancodigital.mapper.SeguroCartaoRowMapper;
 
 @Repository
 public class SeguroCartaoDAO {
@@ -25,8 +23,9 @@ public class SeguroCartaoDAO {
     private JdbcTemplate jdbcTemplate;
     
     public SeguroCartao salvar(SeguroCartao seguro) {
-        String sql = "INSERT INTO seguro_cartao (id_cliente, tipo_seguro, valor_mensal, cobertura, ativo) " +
-                     "VALUES (?, ?, ?, ?, ?) RETURNING id";
+       // String sql = "INSERT INTO seguro_cartao (id_cliente, tipo_seguro, valor_mensal, cobertura, ativo) " +
+       //              "VALUES (?, ?, ?, ?, ?) RETURNING id";
+        String sql = "select * from public.inserir_seguro_cartao_v1 (?, ?, ?, ?, ?)";    	
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -53,30 +52,11 @@ public class SeguroCartaoDAO {
     public Optional<SeguroCartao> buscarPorId(Long id) {
         String sql = "SELECT * FROM seguro_cartao WHERE id = ?";
         try {
-            SeguroCartao seguro = jdbcTemplate.queryForObject(sql,  seguroCartaoRowMapper(), id);
+            SeguroCartao seguro = jdbcTemplate.queryForObject(sql,  new SeguroCartaoRowMapper(), id);
             return Optional.ofNullable(seguro);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
-
-    // RowMapper
-    private RowMapper<SeguroCartao> seguroCartaoRowMapper() {
-        return new RowMapper<SeguroCartao>() {
-            @Override
-            public SeguroCartao mapRow(ResultSet rs, int rowNum) throws SQLException {
-                SeguroCartao seguro = new SeguroCartao();
-                seguro.setId(rs.getLong("id"));
-                seguro.setIdCliente(rs.getLong("id_cliente"));
-                seguro.setTipoSeguro(rs.getString("tipo_seguro"));
-                seguro.setValorMensal(rs.getBigDecimal("valor_mensal"));
-                seguro.setCobertura(rs.getBigDecimal("cobertura"));
-                seguro.setAtivo(rs.getBoolean("ativo"));
-                return seguro;
-            }
-        };
-    }
-    
- 
 	
 }

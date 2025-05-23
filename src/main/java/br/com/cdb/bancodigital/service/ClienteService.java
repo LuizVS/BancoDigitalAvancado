@@ -34,7 +34,7 @@ public class ClienteService {
             	return true;            
 
         } catch (DateTimeParseException e) {
-            System.out.println("Erro: Data inválida! Use o formato dd/MM/yyyy.");            
+           // System.out.println("Erro: Data inválida! Use o formato dd/MM/yyyy.");            
         }
         return false;
 	}	
@@ -56,9 +56,9 @@ public class ClienteService {
 			
 			return true;
 		} catch (IllegalArgumentException e) {
-            System.out.println("Erro: " + e.getMessage());
+           // System.out.println("Erro: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
+           // System.out.println("Erro: " + e.getMessage());
         }
 		
 		return false;	

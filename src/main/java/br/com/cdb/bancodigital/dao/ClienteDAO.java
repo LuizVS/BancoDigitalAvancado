@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.jdbc.core.RowMapper;
+import br.com.cdb.bancodigital.mapper.ClienteRowMapper;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.springframework.jdbc.support.KeyHolder;
@@ -28,7 +26,8 @@ public class ClienteDAO {
     private JdbcTemplate jdbcTemplate;
     
     public Cliente salvarCliente(Cliente cliente) {
-        String sql = "INSERT INTO cliente (nome, cpf, nascimento, rua, numero, complemento, cidade, estado, cep, tipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+        //String sql = "INSERT INTO cliente (nome, cpf, nascimento, rua, numero, complemento, cidade, estado, cep, tipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+    	String sql = "select * from public.inserir_cliente_v1(?,?,?,?,?,?,?,?,?,?)";
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
@@ -56,10 +55,6 @@ public class ClienteDAO {
         }
         
         return cliente;        
-        
-        //jdbcTemplate.update(sql, cliente.getNome(), cliente.getCpf(), java.sql.Date.valueOf(cliente.getNascimento()), cliente.getRua(), 
-        //		                 cliente.getNumero(), cliente.getComplemento(), cliente.getCidade(), cliente.getEstado(),
-        //		                 cliente.getCep(), cliente.getTipo());
     }   
     
     public List<Cliente> listarTodos() {
@@ -84,33 +79,12 @@ public class ClienteDAO {
     public Optional<Cliente> buscarClientePorId(Long id) {
         String sql = "SELECT * FROM cliente where id = ?";
         try {
-            Cliente cliente = jdbcTemplate.queryForObject(sql, clienteRowMapper(), id);
+            Cliente cliente = jdbcTemplate.queryForObject(sql, new ClienteRowMapper(), id);
             return Optional.of(cliente);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-    }       
-    
-    private RowMapper<Cliente> clienteRowMapper() {
-    	return new RowMapper<Cliente>() {
-            @Override
-            public Cliente mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Cliente c = new Cliente();
-                c.setId(rs.getLong("id"));
-                c.setNome(rs.getString("nome"));
-                c.setCpf(rs.getString("cpf"));
-                c.setNascimento(rs.getDate("nascimento").toLocalDate());
-                c.setRua(rs.getString("rua"));
-                c.setNumero(rs.getString("numero"));
-                c.setComplemento(rs.getString("complemento"));
-                c.setCidade(rs.getString("cidade"));
-                c.setEstado(rs.getString("estado"));
-                c.setCep(rs.getString("cep"));
-                c.setTipo(rs.getString("tipo"));
-                return c;
-            }
-        };
-    }
+    }          
 
 	public Optional<Cliente> buscarClientePorCPF(String cpf) {
         String sql = "SELECT * FROM cliente where cpf = ?";

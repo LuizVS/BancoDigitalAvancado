@@ -2,7 +2,6 @@ package br.com.cdb.bancodigital.dao;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Optional;
@@ -10,13 +9,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import br.com.cdb.bancodigital.entity.ContaCorrente;
 import br.com.cdb.bancodigital.entity.ContaPoupanca;
+
+import br.com.cdb.bancodigital.mapper.ContaCorrenteRowMapper;
+import br.com.cdb.bancodigital.mapper.ContaPoupancaRowMapper;
 
 @Repository
 public class ContaDAO {
@@ -26,7 +27,8 @@ public class ContaDAO {
     
     // === Conta Corrente ===
     public ContaCorrente salvarContaCorrente(ContaCorrente conta) {
-        String sql = "INSERT INTO conta_corrente (id_cliente, saldo) VALUES (?, ?) RETURNING id";
+        //String sql = "INSERT INTO conta_corrente (id_cliente, saldo) VALUES (?, ?) RETURNING id";
+    	String sql = "select * from public.inserir_conta_corrente_v1 (?, ?)";
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
@@ -53,7 +55,7 @@ public class ContaDAO {
     public Optional<ContaCorrente> buscarContaCorrentePorId(Long id) {
         String sql = "SELECT * FROM conta_corrente WHERE id = ?";
         try {
-            ContaCorrente conta = jdbcTemplate.queryForObject(sql, mapContaCorrente(), id);
+            ContaCorrente conta = jdbcTemplate.queryForObject(sql, new ContaCorrenteRowMapper(), id);
             return Optional.of(conta);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -63,23 +65,13 @@ public class ContaDAO {
     public void atualizarSaldoContaCorrente(Long id, BigDecimal novoSaldo) {
         String sql = "UPDATE conta_corrente SET saldo = ? WHERE id = ?";
         jdbcTemplate.update(sql, novoSaldo, id);
-    }    
-    
-    // === RowMappers Conta Corrente ===
-    private RowMapper<ContaCorrente> mapContaCorrente() {
-        return (ResultSet rs, int rowNum) -> {
-            ContaCorrente conta = new ContaCorrente();
-            conta.setId(rs.getLong("id"));
-            conta.setIdCliente(rs.getLong("id_cliente"));
-            conta.depositar(rs.getBigDecimal("saldo"));
-            return conta;
-        };
-    }    
+    }      
     
     
     // === Conta Poupança ===
     public ContaPoupanca salvarContaPoupanca(ContaPoupanca conta) {
-        String sql = "INSERT INTO conta_poupanca (id_cliente, saldo) VALUES (?, ?) RETURNING id";
+        //String sql = "INSERT INTO conta_poupanca (id_cliente, saldo) VALUES (?, ?) RETURNING id";
+    	String sql = "select * from public.inserir_conta_poupanca_v1 (?, ?)";
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
@@ -106,7 +98,7 @@ public class ContaDAO {
     public Optional<ContaPoupanca> buscarContaPoupancaPorId(Long id) {
         String sql = "SELECT * FROM conta_poupanca WHERE id = ?";
         try {
-            ContaPoupanca conta = jdbcTemplate.queryForObject(sql, mapContaPoupanca(), id);
+            ContaPoupanca conta = jdbcTemplate.queryForObject(sql, new ContaPoupancaRowMapper(), id);
             return Optional.of(conta);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -116,17 +108,6 @@ public class ContaDAO {
     public void atualizarSaldoContaPoupanca(Long id, BigDecimal novoSaldo) {
         String sql = "UPDATE conta_poupanca SET saldo = ? WHERE id = ?";
         jdbcTemplate.update(sql, novoSaldo, id);
-    }
-    
-    // === RowMappers Conta Poupança ===    
-    private RowMapper<ContaPoupanca> mapContaPoupanca() {
-        return (ResultSet rs, int rowNum) -> {
-            ContaPoupanca conta = new ContaPoupanca();
-            conta.setId(rs.getLong("id"));
-            conta.setIdCliente(rs.getLong("id_cliente"));
-            conta.depositar(rs.getBigDecimal("saldo"));
-            return conta;
-        };
     }    
 
 }

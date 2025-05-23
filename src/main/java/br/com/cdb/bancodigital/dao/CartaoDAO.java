@@ -2,8 +2,6 @@ package br.com.cdb.bancodigital.dao;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Optional;
@@ -11,14 +9,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import br.com.cdb.bancodigital.entity.Cartao;
-import br.com.cdb.bancodigital.entity.CartaoCredito;
-import br.com.cdb.bancodigital.entity.CartaoDebito;
+
+import br.com.cdb.bancodigital.mapper.CartaoRowMapper;
 
 @Repository
 public class CartaoDAO {
@@ -27,7 +24,8 @@ public class CartaoDAO {
     private JdbcTemplate jdbcTemplate;	
 	
     public Cartao salvarCartao(Cartao cartao) {
-        String sql = "INSERT INTO cartao (idconta, numerocartao, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?) RETURNING id";
+        //String sql = "INSERT INTO cartao (idconta, numerocartao, tipocartao, senha, ativo, limite) VALUES (?, ?, ?, ?, ?) RETURNING id";
+    	String sql = "select * from public.inserir_cartao_v1 (?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -50,38 +48,12 @@ public class CartaoDAO {
         }
         
         return cartao;
-    }
-    
-    private RowMapper<Cartao> cartaoRowMapper() {
-        return new RowMapper<Cartao>() {
-            @Override
-            public Cartao mapRow(ResultSet rs, int rowNum) throws SQLException {
-                String tipo = rs.getString("tipocartao");
-                Cartao cartao;
-
-                if ("CREDITO".equalsIgnoreCase(tipo)) {
-                    cartao = new CartaoCredito();
-                } else {
-                    cartao = new CartaoDebito();
-                }
-
-                cartao.setId(rs.getLong("id"));
-                cartao.setIdConta(rs.getLong("idconta"));
-                cartao.setNumeroCartao(rs.getString("numerocartao"));                
-                cartao.setTipoCartao(tipo);
-                cartao.setSenha(rs.getString("senha"));
-                cartao.setAtivo(rs.getBoolean("ativo"));
-                cartao.ajustarLimite(rs.getBigDecimal("limite"));
-
-                return cartao;
-            }
-        };
-    } 
+    }    
     
     public Optional<Cartao> buscarCartaoPorId(Long id) {
         String sql = "SELECT * FROM cartao WHERE id = ?";
         try {
-            Cartao cartao = jdbcTemplate.queryForObject(sql, cartaoRowMapper(), id);
+            Cartao cartao = jdbcTemplate.queryForObject(sql, new CartaoRowMapper(), id);
             return Optional.of(cartao);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -91,7 +63,7 @@ public class CartaoDAO {
     public Optional<Cartao> buscarCartaoPorNumero(String numero) {
         String sql = "SELECT * FROM cartao WHERE numerocartao = ?";
         try {
-            Cartao cartao = jdbcTemplate.queryForObject(sql, cartaoRowMapper(), numero);
+            Cartao cartao = jdbcTemplate.queryForObject(sql, new CartaoRowMapper(), numero);
             return Optional.of(cartao);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
